@@ -15,7 +15,7 @@ from config import LR, LR_DECAY_EPOCH, NUM_EPOCHS, NUM_IMAGES, MOMENTUM, GAMMA
 sys.path.append('../../utils')
 
 
-print('\nProcessing Model Layers Species\n')
+print('\nProcessing Model Species\n')
 
 
 def imshow(inp, title=None):
@@ -32,7 +32,6 @@ def imshow(inp, title=None):
 
 inputs, classes = next(iter(dset_loaders['train']))
 
-# Make a grid from batch
 out = torchvision.utils.make_grid(inputs)
 
 # imshow(out, title=[dset_classes[x] for x in classes])
@@ -106,7 +105,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
         print('Epoch {}/{}'.format(epoch + 1, num_epochs))
         print('-' * 50)
         results = ('Epoch {}/{}\n'.format(epoch + 1, num_epochs)) + ('--' * 50) + '\n'
-        with open('../../results/species/build_model__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+        with open('../../results/species/model__species__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
             f.write(results)
         f.close
 
@@ -147,7 +146,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
 
             results = ('{} Loss: {:.8f} Acc: {:.8f}\n'.format(phase, epoch_loss, epoch_acc)) + '\n'
-            with open('../../results/species/build_model__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+            with open('../../results/species/model__species__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
                 f.write(results)
             f.close
 
@@ -163,7 +162,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
 
     results = ('\nTraining complete in {:.0f}m {:.0f}s\n'.format(time_elapsed // 60, time_elapsed % 60)) + \
         ('Best val Acc: {:8f}\n'.format(best_acc))
-    with open('../../results/species/build_model__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+    with open('../../results/species/model__species__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
         f.write(results)
     f.close
 

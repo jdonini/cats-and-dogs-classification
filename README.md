@@ -1,5 +1,8 @@
 # Cats and Dogs Classification
-The Oxford-IIIT Pet Dataset
+The Oxford-IIIT Pet Dataset.
+The problem is to classify each breed of animal presented in the dataset.
+The first step was to classify breeds between dogs and cats, after doing this the breeds of dogs and cats were classified separatelythe, and finally, mixed the races and made the classification, increasing the degree of difficulty of problem.
+
 
 ## Step 1
 run get_dataset
