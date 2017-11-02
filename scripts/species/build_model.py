@@ -6,23 +6,24 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 import torchvision
+from torchnet import meter
 from torch.autograd import Variable
 import sys
 sys.path.append('../../scripts')
-from species.data_loader import dset_classes, dset_loaders, dset_sizes
+from species.data_loader import dset_classes, dset_loaders, dset_sizes, dsets
 sys.path.append('../../utils')
 from config import LR, LR_DECAY_EPOCH, NUM_EPOCHS, NUM_IMAGES, MOMENTUM, GAMMA
 sys.path.append('../../utils')
 
-
 print('\nProcessing Model Species\n')
 
+classes_species = dsets['train'].classes
 
 def imshow(inp, title=None):
     """Imshow for Tensor."""
     inp = inp.numpy().transpose((1, 2, 0))
-    mean = np.array([0.5, 0.5, 0.5])
-    std = np.array([0.5, 0.5, 0.5])
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.485, 0.456, 0.406])
     inp = std * inp + mean
     plt.imshow(inp)
     if title is not None:
@@ -119,11 +120,15 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             running_loss = 0.0
             running_corrects = 0
 
+            confusion_matrix = meter.ConfusionMeter(2)
+
             for data in dset_loaders[phase]:
                 inputs, labels = data
 
                 if torch.cuda.is_available():
                     inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+                    score = model(inputs)
+                    confusion_matrix.add(score.data, labels.data)
                 else:
                     inputs, labels = Variable(inputs), Variable(labels)
 
@@ -143,6 +148,13 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]
 
+            print("----------------------------- Confusion Matrix Classes -----------------------------")
+            print(classes_species)
+            print("----------------------------- Confusion Matrix Classes -----------------------------")
+            print("")
+            print("----------------------------- Confusion Matrix -----------------------------")
+            print(confusion_matrix.conf)
+            print("----------------------------- Confusion Matrix -----------------------------")
             print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
 
             results = ('{} Loss: {:.8f} Acc: {:.8f}\n'.format(phase, epoch_loss, epoch_acc)) + '\n'
@@ -205,7 +217,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 
 model = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=NUM_EPOCHS)
 
-# visualize_model(model)
+visualize_model(model)
 
 plt.ioff()
 plt.show()

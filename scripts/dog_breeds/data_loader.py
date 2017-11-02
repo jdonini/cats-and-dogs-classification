@@ -12,7 +12,8 @@ warnings.filterwarnings("ignore")
 print("Processing Dogs Breeds...")
 
 transform = {
-    'train': transforms.Compose([transforms.RandomSizedCrop(224),
+    'train': transforms.Compose([transforms.Scale(256),
+                                 transforms.RandomSizedCrop(224),
                                  transforms.ToTensor(),
                                  transforms.Normalize(
                                      mean=[0.485, 0.456, 0.406],
