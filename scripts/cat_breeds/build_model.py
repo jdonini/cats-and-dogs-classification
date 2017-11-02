@@ -14,7 +14,7 @@ sys.path.append('../../utils')
 from config import LR, LR_DECAY_EPOCH, NUM_EPOCHS, NUM_IMAGES, MOMENTUM
 sys.path.append('../../utils')
 
-print('\nProcessing Model Dogs Breeds...\n')
+print('\nProcessing Model Cats Breeds...\n')
 
 
 def imshow(inp, title=None):
@@ -43,9 +43,16 @@ class CNNModel(nn.Module):
     def __init__(self):
         super(CNNModel, self).__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.Conv2d(3, 16, kernel_size=11, stride=4, padding=2),
+            nn.BatchNorm2d(16),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
+            
             nn.MaxPool2d(kernel_size=3, stride=2),
 
             nn.Conv2d(64, 128, kernel_size=5, padding=2),
@@ -54,12 +61,13 @@ class CNNModel(nn.Module):
             nn.Conv2d(128, 192, kernel_size=5, padding=2),
             nn.BatchNorm2d(192),
             nn.ReLU(inplace=True),
+            nn.Conv2d(192, 192, kernel_size=5, padding=2),
+            nn.BatchNorm2d(192),
+            nn.ReLU(inplace=True),
+
             nn.MaxPool2d(kernel_size=3, stride=2),
 
-            nn.Conv2d(192, 384, kernel_size=3, padding=1),
-            nn.BatchNorm2d(384),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.Conv2d(192, 256, kernel_size=3, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, padding=1),
@@ -68,19 +76,23 @@ class CNNModel(nn.Module):
             nn.Conv2d(256, 512, kernel_size=3, padding=1),
             nn.BatchNorm2d(512),
             nn.ReLU(inplace=True),
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(inplace=True),
+
             nn.MaxPool2d(kernel_size=3, stride=2),
 
         )
         self.classifier = nn.Sequential(
-            nn.Linear(512 * 6 * 6, 4096),
-            nn.BatchNorm1d(4096),
+            nn.Linear(512 * 6 * 6, 512),
+            nn.BatchNorm1d(512),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-            nn.Linear(4096, 4096),
-            nn.BatchNorm1d(4096),
+            # nn.Dropout(0.7),
+            nn.Linear(512, 512),
+            nn.BatchNorm1d(512),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-            nn.Linear(4096, 12),
+            # nn.Dropout(0.3),
+            nn.Linear(512, 12),
             nn.LogSoftmax()
         )
 
@@ -113,7 +125,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
         print('Epoch {}/{}'.format(epoch + 1, num_epochs))
         print('-' * 50)
         results = ('Epoch {}/{}\n'.format(epoch + 1, num_epochs)) + ('--' * 50) + '\n'
-        with open('../../results/dogs/4layers__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+        with open('../../results/cats/cats_model__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
             f.write(results)
         f.close
 
@@ -151,10 +163,10 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]
 
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
 
-            results = ('{} Loss: {:.4f} Acc: {:.4f}\n'.format(phase, epoch_loss, epoch_acc)) + '\n'
-            with open('../../results/dogs/4layers__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+            results = ('{} Loss: {:.8f} Acc: {:.8f}\n'.format(phase, epoch_loss, epoch_acc)) + '\n'
+            with open('../../results/cats/cats_model__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
                 f.write(results)
             f.close
 
@@ -166,11 +178,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best val Acc: {:4f}\n'.format(best_acc))
+    print('Best val Acc: {:8f}\n'.format(best_acc))
 
     results = ('\nTraining complete in {:.0f}m {:.0f}s\n'.format(time_elapsed // 60, time_elapsed % 60)) + \
-        ('Best val Acc: {:4f}\n'.format(best_acc))
-    with open('../../results/dogs/4layers__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+        ('Best val Acc: {:8f}\n'.format(best_acc))
+    with open('../../results/cats/cats_model__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
         f.write(results)
     f.close
 
@@ -209,9 +221,7 @@ if torch.cuda.is_available():
 
 criterion = nn.CrossEntropyLoss().cuda()
 
-# optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
-# optimizer = torch.optim.Adam(model.parameters(), lr=LR)
-optimizer = torch.optim.RMSprop(model.parameters())
+optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
 
 model = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=NUM_EPOCHS)
 
@@ -220,4 +230,4 @@ model = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=NU
 plt.ioff()
 plt.show()
 
-# torch.save(model.state_dict(), '../../results/dogs/model_4layers_dogs_breeds.pkl')
+# torch.save(model.state_dict(), '../../results/cats/model_cats_breeds.pkl')
