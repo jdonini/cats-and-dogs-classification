@@ -5,15 +5,26 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
+from torchnet import meter
 from torch.autograd import Variable
+
 import sys
 sys.path.append('../../scripts')
-from dog_breeds.data_loader import dset_classes, dset_loaders, dset_sizes
+from dog_breeds.data_loader import dset_classes, dset_loaders, dset_sizes, dsets
+
 sys.path.append('../../utils')
 from config import LR, LR_DECAY_EPOCH, NUM_EPOCHS, NUM_IMAGES, MOMENTUM
+
 sys.path.append('../../utils')
+from logger import Logger
 
 print('\nProcessing Model Dogs Breeds...\n')
+
+classes_dogs = dsets['train'].classes
+
+
+def to_np(x):
+    return x.data.cpu().numpy()
 
 
 def imshow(inp, title=None):
@@ -36,70 +47,63 @@ out = torchvision.utils.make_grid(inputs)
 
 
 class CNNModel(nn.Module):
+        def __init__(self):
+            super(CNNModel, self).__init__()
+            self.features = nn.Sequential(
+                nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+                nn.BatchNorm2d(64),
+                nn.ReLU6(inplace=True),
+                nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(64),
+                nn.ReLU6(inplace=True),
+                nn.MaxPool2d(kernel_size=3, stride=2),
 
-    def __init__(self):
-        super(CNNModel, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=11, stride=4, padding=2),
-            nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
+                nn.Conv2d(64, 128, kernel_size=5, padding=2),
+                nn.BatchNorm2d(128),
+                nn.ReLU6(inplace=True),
+                nn.Conv2d(128, 192, kernel_size=5, padding=2),
+                nn.BatchNorm2d(192),
+                nn.ReLU6(inplace=True),
+                nn.Conv2d(192, 192, kernel_size=3, padding=1),
+                nn.BatchNorm2d(192),
+                nn.ReLU6(inplace=True),
+                nn.MaxPool2d(kernel_size=3, stride=2),
 
-            nn.Conv2d(64, 128, kernel_size=5, padding=2),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(128, 192, kernel_size=5, padding=2),
-            nn.BatchNorm2d(192),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(192, 192, kernel_size=3, padding=1),
-            nn.BatchNorm2d(192),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
+                nn.Conv2d(192, 384, kernel_size=3, padding=1),
+                nn.BatchNorm2d(384),
+                nn.ReLU6(inplace=True),
+                nn.Conv2d(384, 256, kernel_size=3, padding=1),
+                nn.BatchNorm2d(256),
+                nn.ReLU6(inplace=True),
+                nn.Conv2d(256, 256, kernel_size=3, padding=1),
+                nn.BatchNorm2d(256),
+                nn.ReLU6(inplace=True),
+                nn.Conv2d(256, 256, kernel_size=3, padding=1),
+                nn.BatchNorm2d(256),
+                nn.ReLU6(inplace=True),
+                nn.Conv2d(256, 512, kernel_size=3, padding=1),
+                nn.BatchNorm2d(512),
+                nn.ReLU6(inplace=True),
+                nn.MaxPool2d(kernel_size=3, stride=2),
+            )
+            self.classifier = nn.Sequential(
+                nn.Linear(512 * 6 * 6, 2048),
+                nn.BatchNorm1d(2048),
+                nn.ReLU6(inplace=True),
+                nn.Dropout(0.5),
+                nn.Linear(2048, 2048),
+                nn.BatchNorm1d(2048),
+                nn.ReLU6(inplace=True),
+                nn.Dropout(0.5),
+                nn.Linear(2048, 25),
+                nn.LogSoftmax()
+            )
 
-            # nn.Conv2d(192, 384, kernel_size=3, padding=1),
-            # nn.BatchNorm2d(384),
-            # nn.ReLU(inplace=True),
-            # nn.Conv2d(384, 256, kernel_size=3, padding=1),
-            # nn.BatchNorm2d(256),
-            # nn.ReLU(inplace=True),
-            nn.Conv2d(192, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(256, 512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True),
-            # nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            # nn.BatchNorm2d(512),
-            # nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Linear(512 * 6 * 6, 512),
-            nn.BatchNorm1d(512),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-            nn.Linear(512, 512),
-            nn.BatchNorm1d(512),
-            nn.ReLU(inplace=True),
-            # nn.Dropout(0.5),
-            nn.Linear(512, 25),
-            nn.LogSoftmax()
-        )
-
-    def forward(self, x):
-        x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        return x
+        def forward(self, x):
+            x = self.features(x)
+            x = x.view(x.size(0), -1)
+            x = self.classifier(x)
+            return x
 
 
 def exp_lr_scheduler(optimizer, epoch, init_lr=LR, lr_decay_epoch=LR_DECAY_EPOCH):
@@ -138,11 +142,15 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             running_loss = 0.0
             running_corrects = 0
 
+            confusion_matrix = meter.ConfusionMeter(25)
+
             for data in dset_loaders[phase]:
                 inputs, labels = data
 
                 if torch.cuda.is_available():
                     inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+                    score = model(inputs)
+                    confusion_matrix.add(score.data, labels.data)
                 else:
                     inputs, labels = Variable(inputs), Variable(labels)
 
@@ -162,6 +170,14 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]
 
+            print("----------------------------- Confusion Matrix Classes -----------------------------")
+            print(classes_dogs)
+            print("----------------------------- Confusion Matrix Classes -----------------------------")
+            print("")
+            print("----------------------------- Confusion Matrix -----------------------------")
+            print(confusion_matrix.conf)
+            print("----------------------------- Confusion Matrix -----------------------------")
+
             print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
 
             results = ('{} Loss: {:.8f} Acc: {:.8f}\n'.format(phase, epoch_loss, epoch_acc)) + '\n'
@@ -169,9 +185,40 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
                 f.write(results)
             f.close
 
+            if phase == 'test':
+                Confusion = ('{}\n Confusion Matrix:\n {}\n'.format(classes_dogs, confusion_matrix.conf)) + '\n'
+                with open('../../results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+                    f.write(Confusion)
+                f.close
+
             if phase == 'test' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model = copy.deepcopy(model)
+
+            if phase == 'test':
+                # ============ TensorBoard logging ============#
+                # (1) Log the scalar values
+                info = {
+                    'loss': epoch_loss,
+                    'accuracy': epoch_acc
+                }
+
+                for tag, value in info.items():
+                    logger.scalar_summary(tag, value, epoch + 1)
+
+                # (2) Log values and gradients of the parameters (histogram)
+                for tag, value in model.named_parameters():
+                    tag = tag.replace('.', '/')
+                    logger.histo_summary(tag, to_np(value), epoch + 1)
+                    logger.histo_summary(tag + '/grad', to_np(value.grad), epoch + 1)
+
+                # (3) Log the images
+                info = {
+                    'images': to_np(inputs.view(-1, 224, 224)[:25])
+                }
+
+                for tag, inputs in info.items():
+                    logger.image_summary(tag, inputs, epoch + 1)
 
         print()
 
@@ -215,12 +262,16 @@ def visualize_model(model, num_images=NUM_IMAGES):
 
 model = CNNModel()
 
+# Set the logger
+logger = Logger('./logs')
+
 if torch.cuda.is_available():
     model.cuda()
 
 criterion = nn.CrossEntropyLoss().cuda()
 
 optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
+
 model = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=NUM_EPOCHS)
 
 # visualize_model(model)

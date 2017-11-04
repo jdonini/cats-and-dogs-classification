@@ -12,8 +12,7 @@ warnings.filterwarnings("ignore")
 print("Processing Dogs Breeds...")
 
 transform = {
-    'train': transforms.Compose([transforms.Scale(256),
-                                 transforms.RandomSizedCrop(224),
+    'train': transforms.Compose([transforms.RandomSizedCrop(224),
                                  transforms.ToTensor(),
                                  transforms.Normalize(
                                      mean=[0.485, 0.456, 0.406],
@@ -31,7 +30,8 @@ transform = {
 dsets = {x: datasets.ImageFolder(os.path.join(DATA_PATH_DOGS, x), transform[x])
          for x in ['train', 'test']}
 
-dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS,
+                                               pin_memory=True)
                 for x in ['train', 'test']}
 
 dset_sizes = {x: len(dsets[x]) for x in ['train', 'test']}

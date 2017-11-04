@@ -8,16 +8,25 @@ import torch.nn as nn
 import torchvision
 from torchnet import meter
 from torch.autograd import Variable
+
 import sys
 sys.path.append('../../scripts')
 from species.data_loader import dset_classes, dset_loaders, dset_sizes, dsets
+
 sys.path.append('../../utils')
-from config import LR, LR_DECAY_EPOCH, NUM_EPOCHS, NUM_IMAGES, MOMENTUM, GAMMA
+from config import LR, LR_DECAY_EPOCH, NUM_EPOCHS, NUM_IMAGES, MOMENTUM
+
 sys.path.append('../../utils')
+from logger import Logger
 
 print('\nProcessing Model Species\n')
 
 classes_species = dsets['train'].classes
+
+
+def to_np(x):
+    return x.data.cpu().numpy()
+
 
 def imshow(inp, title=None):
     """Imshow for Tensor."""
@@ -155,6 +164,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             print("----------------------------- Confusion Matrix -----------------------------")
             print(confusion_matrix.conf)
             print("----------------------------- Confusion Matrix -----------------------------")
+
             print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
 
             results = ('{} Loss: {:.8f} Acc: {:.8f}\n'.format(phase, epoch_loss, epoch_acc)) + '\n'
@@ -162,9 +172,40 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
                 f.write(results)
             f.close
 
+            if phase == 'test':
+                Confusion = ('{}\n Confusion Matrix:\n {}\n'.format(classes_species, confusion_matrix.conf)) + '\n'
+                with open('../../results/species/model__species__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+                    f.write(Confusion)
+                f.close
+
             if phase == 'test' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model = copy.deepcopy(model)
+
+            if phase == 'test':
+                # ============ TensorBoard logging ============#
+                # (1) Log the scalar values
+                info = {
+                    'loss': epoch_loss,
+                    'accuracy': epoch_acc
+                }
+
+                for tag, value in info.items():
+                    logger.scalar_summary(tag, value, epoch + 1)
+
+                # (2) Log values and gradients of the parameters (histogram)
+                for tag, value in model.named_parameters():
+                    tag = tag.replace('.', '/')
+                    logger.histo_summary(tag, to_np(value), epoch + 1)
+                    logger.histo_summary(tag + '/grad', to_np(value.grad), epoch + 1)
+
+                # (3) Log the images
+                info = {
+                    'images': to_np(inputs.view(-1, 224, 224)[:25])
+                }
+
+                for tag, inputs in info.items():
+                    logger.image_summary(tag, inputs, epoch + 1)
 
         print()
 
@@ -207,6 +248,9 @@ def visualize_model(model, num_images=NUM_IMAGES):
 
 
 model = CNNModel()
+
+# Set the logger
+logger = Logger('./logs')
 
 if torch.cuda.is_available():
     model.cuda()
