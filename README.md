@@ -5,21 +5,22 @@ The first step was to classify breeds between dogs and cats, after doing this th
 
 
 ## Step 1
-run get_dataset
+Run get_dataset
 - utils/
 - bash get_dataset.sh
 
 ## Step 2
-run data_augmentation
-- src/
-- python data_augmentation
-
-## Step 3
-run data_preprocessing
-- src/
+Run the preprocessing of the desired class
+- script/
 - python data_preprocessing.py
 
+## Step 3
+Run the model of the desired class
+- script/
+- python build_model.py
 
-## additional Step
-- src/
-- python model_alexNet.py
+## Step 4
+To run the TensorBoard, open a new terminal and run the command below. Then, open http://localhost:6006/ in your web browser.
+- script/
+- choose your model
+- tensorboard --logdir='./logs' --port=6006

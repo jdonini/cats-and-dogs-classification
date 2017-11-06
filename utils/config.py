@@ -1,11 +1,11 @@
 import os
 
 BATCH_SIZE = 100
-IMG_SIZE = 224  # best result 128, for test use 64
+IMG_SIZE = 224
 LR = 1e-2
 MOMENTUM = 0.9
 NUM_WORKERS = 2
-NUM_EPOCHS = 64
+NUM_EPOCHS = 32
 GAMMA = 0.1
 LR_DECAY_EPOCH = 6
 NUM_IMAGES = 6  # between 1 and 8

@@ -171,13 +171,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]
 
-            print("----------------------------- Confusion Matrix Classes -----------------------------")
-            print(classes_breeds)
-            print("----------------------------- Confusion Matrix Classes -----------------------------")
-            print("")
-            print("----------------------------- Confusion Matrix -----------------------------")
-            print(confusion_matrix.conf)
-            print("----------------------------- Confusion Matrix -----------------------------")
+            if phase == 'test':
+                print("----------------------------- Confusion Matrix Classes -----------------------------")
+                print(classes_breeds)
+                print("----------------------------- Confusion Matrix Classes -----------------------------")
+                print("")
 
             print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
 
@@ -187,9 +185,16 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             f.close
 
             if phase == 'test':
-                Confusion = ('{}\n Confusion Matrix:\n {}\n'.format(classes_breeds, confusion_matrix.conf)) + '\n'
+                confusion = ('{}\n'.format(classes_breeds)) + '\n'
                 with open('../../results/breeds/model__breeds__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
-                    f.write(Confusion)
+                    f.write(confusion)
+                    cm_value = confusion_matrix.value()
+                    for i in cm_value:
+                        for j in i:
+                            f.write(str(j) + " ")
+                        f.write("\n")
+                        f.write("\n")
+                    f.write("\n")
                 f.close
 
             if phase == 'test' and epoch_acc > best_acc:

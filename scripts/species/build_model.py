@@ -21,6 +21,7 @@ from logger import Logger
 
 print('\nProcessing Model Species\n')
 
+
 classes_species = dsets['train'].classes
 
 
@@ -52,15 +53,27 @@ class CNNModel(nn.Module):
     def __init__(self):
         super(CNNModel, self).__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.Conv2d(3, 32, kernel_size=11, stride=4, padding=2),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),
 
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
             nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 384, kernel_size=3, padding=1),
+            nn.BatchNorm2d(384),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),
@@ -71,18 +84,21 @@ class CNNModel(nn.Module):
             nn.Conv2d(256, 512, kernel_size=3, padding=1),
             nn.BatchNorm2d(512),
             nn.ReLU(inplace=True),
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),
         )
         self.classifier = nn.Sequential(
-            nn.Linear(512 * 6 * 6, 512),
-            nn.BatchNorm1d(512),
+            nn.Linear(512 * 6 * 6, 1024),
+            nn.BatchNorm1d(1024),
             nn.ReLU(inplace=True),
-            nn.Dropout2d(0.5),
-            nn.Linear(512, 512),
-            nn.BatchNorm1d(512),
+            nn.Dropout2d(0.7),
+            nn.Linear(1024, 1024),
+            nn.BatchNorm1d(1024),
             nn.ReLU(inplace=True),
-            nn.Dropout2d(0.5),
-            nn.Linear(512, 2),
+            nn.Dropout2d(0.3),
+            nn.Linear(1024, 2),
             nn.Sigmoid()
         )
 
@@ -162,7 +178,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             print("----------------------------- Confusion Matrix Classes -----------------------------")
             print("")
             print("----------------------------- Confusion Matrix -----------------------------")
-            print(confusion_matrix.conf)
+            print(confusion_matrix.value())
             print("----------------------------- Confusion Matrix -----------------------------")
 
             print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
@@ -261,7 +277,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 
 model = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=NUM_EPOCHS)
 
-visualize_model(model)
+# visualize_model(model)
 
 plt.ioff()
 plt.show()
