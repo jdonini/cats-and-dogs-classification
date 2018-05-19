@@ -5,7 +5,7 @@ import os
 from PIL import Image
 import numpy as np
 from scipy.misc import imsave, imread
-sys.path.append('../../utils')
+sys.path.append('utils')
 from config import *
 from data_augmentation import *
 

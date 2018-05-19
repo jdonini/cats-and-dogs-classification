@@ -4,7 +4,7 @@ import torchvision.transforms as transforms
 from torchvision import datasets
 import os
 import sys
-sys.path.append('../../utils')
+sys.path.append('utils')
 from config import IMG_SIZE, BATCH_SIZE, NUM_WORKERS, DATA_PATH
 
 warnings.filterwarnings("ignore")

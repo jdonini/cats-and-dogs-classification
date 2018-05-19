@@ -9,13 +9,11 @@ from torchnet import meter
 from torch.autograd import Variable
 
 import sys
-sys.path.append('../../scripts')
+sys.path.append('scripts')
 from dog_breeds.data_loader import dset_classes, dset_loaders, dset_sizes, dsets
 
-sys.path.append('../../utils')
+sys.path.append('utils')
 from config import LR, LR_DECAY_EPOCH, NUM_EPOCHS, NUM_IMAGES, MOMENTUM
-
-sys.path.append('../../utils')
 from logger import Logger
 
 print('\nProcessing Model Dogs Breeds...\n')
