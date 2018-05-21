@@ -25,7 +25,13 @@ wheels/
 .installed.cfg
 *.egg
 
+# my project
 .vscode/
+results
+datasets/data_breeds
+datasets/data_cats
+datasets/data_dogs
+datasets/data_species
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

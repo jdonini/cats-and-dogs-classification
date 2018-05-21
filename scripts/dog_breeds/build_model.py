@@ -1,5 +1,6 @@
 import copy
 import time
+from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -39,7 +40,7 @@ def imshow(inp, title=None):
 
 inputs, classes = next(iter(dset_loaders['train']))
 
-out = torchvision.utils.make_grid(inputs)
+out = make_grid(inputs)
 
 # imshow(out, title=[dset_classes[x] for x in classes])
 
@@ -126,7 +127,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
         print('Epoch {}/{}'.format(epoch + 1, num_epochs))
         print('-' * 50)
         results = ('Epoch {}/{}\n'.format(epoch + 1, num_epochs)) + ('--' * 50) + '\n'
-        with open('../../results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+        with open('results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
             f.write(results)
         f.close
 
@@ -163,7 +164,8 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
                     optimizer.step()
 
                 running_loss += loss.data[0]
-                running_corrects += torch.sum(preds == labels.data)
+                # running_corrects += torch.sum(preds == labels.data)
+                running_corrects += (preds == labels).sum().item()                
 
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]
@@ -179,13 +181,13 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
             print('{} Loss: {:.8f} Acc: {:.8f}'.format(phase, epoch_loss, epoch_acc))
 
             results = ('{} Loss: {:.8f} Acc: {:.8f}\n'.format(phase, epoch_loss, epoch_acc)) + '\n'
-            with open('../../results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+            with open('results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
                 f.write(results)
             f.close
 
             if phase == 'test':
                 Confusion = ('{}\n Confusion Matrix:\n {}\n'.format(classes_dogs, confusion_matrix.conf)) + '\n'
-                with open('../../results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+                with open('results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
                     f.write(Confusion)
                 f.close
 
@@ -226,7 +228,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=NUM_EPOCHS
 
     results = ('\nTraining complete in {:.0f}m {:.0f}s\n'.format(time_elapsed // 60, time_elapsed % 60)) + \
         ('Best val Acc: {:8f}\n'.format(best_acc))
-    with open('../../results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
+    with open('results/dogs/model__dogs__Epoch__ ' + str(num_epochs) + '__LR__' + str(LR) + '.txt', 'a') as f:
         f.write(results)
     f.close
 
@@ -261,7 +263,7 @@ def visualize_model(model, num_images=NUM_IMAGES):
 model = CNNModel()
 
 # Set the logger
-logger = Logger('./logs')
+logger = Logger('results/dogs/logs')
 
 if torch.cuda.is_available():
     model.cuda()
@@ -277,4 +279,4 @@ model = train_model(model, criterion, optimizer, exp_lr_scheduler, num_epochs=NU
 plt.ioff()
 plt.show()
 
-# torch.save(model.state_dict(), '../../results/dogs/model_dogs_breeds.pkl')
+torch.save(model.state_dict(), 'results/dogs/model_dogs_breeds.pkl')
