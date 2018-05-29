@@ -42,6 +42,7 @@ datasets/data_species
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+docs/doctrees/
 
 # Unit test / coverage reports
 htmlcov/
