@@ -24,8 +24,8 @@ augmentator = iaa.SomeOf((1, 2), [
     iaa.Grayscale(alpha=(0.0, 1.0)),
     iaa.ElasticTransformation(alpha=(0.0, 3.0), sigma=0.25),
     iaa.Sequential([
-            iaa.Affine(translate_px={"x": -20}),
-            iaa.AdditiveGaussianNoise(scale=0.1*255)
+        iaa.Affine(translate_px={"x": -20}),
+        iaa.AdditiveGaussianNoise(scale=0.1*255)
     ]),
     iaa.Affine(
         shear=(-16, 16)
@@ -51,7 +51,7 @@ def augment_images(image, f):
 
 def remove_noise():
     print("\nProcessing remove noise \n")
-    for root, dirs, files in os.walk(DATA_PATH_IMAGES):
+    for root, _, files in os.walk(DATA_PATH_IMAGES):
         for currentFile in files:
             print("processing file: " + currentFile)
             exts = '.mat'
