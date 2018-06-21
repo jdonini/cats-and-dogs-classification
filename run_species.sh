@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python scripts/species/data_preprocessing.py && python scripts/species/build_model.py
+python src/species/data_preprocessing.py && python src/species/build_model.py

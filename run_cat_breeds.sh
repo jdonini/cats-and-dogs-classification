@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python scripts/cat_breeds/data_preprocessing.py && python scripts/cat_breeds/build_model.py
+python src/cat_breeds/data_preprocessing.py && python src/cat_breeds/build_model.py
