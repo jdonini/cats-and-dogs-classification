@@ -1,1 +1,0 @@
-Search.setIndex({docnames:["index"],envversion:53,filenames:["index.rst"],objects:{},objnames:{},objtypes:{},terms:{index:0,modul:0,page:0,search:0},titles:["Welcome to Cats and dogs Classification Problem\u2019s documentation!"],titleterms:{cat:0,classif:0,document:0,dog:0,indic:0,problem:0,tabl:0,welcom:0}})
