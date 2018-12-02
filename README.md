@@ -7,17 +7,20 @@ The first step was to classify breeds between dogs and cats, after doing this th
 ## Step 1
 
 get dataset:
-    bash utils/get_dataset.sh
+
+- bash utils/get_dataset.sh
 
 ## Step 2
 
 preprocessing the dataset:
-    bash rul_all_preprocessing.sh
+
+- bash rul_all_preprocessing.sh
 
 ## Step 3
 
 Creation of the training model:
-    bash run_all_models.sh
+
+- bash run_all_models.sh
 
 ## Step 4
 
