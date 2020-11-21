@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "cats-and-dogs-classification"
+version = "1.0.0"
+description = "The Oxford-IIIT Pet Dataset. The problem is to classify each breed of animal presented in the dataset. The first step was to classify breeds between dogs and cats, after doing this the breeds of dogs and cats were classified separatelythe, and finally, mixed the races and made the classification, increasing the degree of difficulty of problem."
+authors = ["Juliano Donini <julianodonini89@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torch = "^1.7.0"
+torchvision = "^0.8.1"
+imgaug = "^0.4.0"
+opencv-python = "^4.4.0"
+scikit-image = "^0.17.2"
+wget = "^3.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.1"
+flake8 = "^3.8"
+mypy = "^0.790"
+black = "^20.8b1"
+matplotlib = "^3.2.1"
+ipdb = "^0.13"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
