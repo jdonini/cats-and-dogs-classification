@@ -29,6 +29,8 @@ wheels/
 # my project
 .vscode/
 database/
+.mypy_cache/
+.pytest/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -102,6 +104,3 @@ ENV/
 
 # mkdocs documentation
 /site
-
-# mypy
-.mypy_cache/

@@ -13,6 +13,7 @@ imgaug = "^0.4.0"
 opencv-python = "^4.4.0"
 scikit-image = "^0.17.2"
 wget = "^3.2"
+tensorflow = "^2.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1"

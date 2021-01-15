@@ -1,11 +1,8 @@
-import tensorflow as tf
 import numpy as np
 import scipy.misc
+import tensorflow as tf
 
-try:
-    from StringIO import StringIO  # Python 2.7
-except ImportError:
-    from io import BytesIO  # Python 3.x
+from io import BytesIO
 
 
 class Logger(object):
@@ -20,16 +17,17 @@ class Logger(object):
 
         img_summaries = []
         for i, img in enumerate(images):
-            try:
-                s = StringIO()
-            except:
-                s = BytesIO()
+            s = BytesIO()
             scipy.misc.toimage(img).save(s, format="png")
 
-            img_sum = tf.Summary.Image(encoded_image_string=s.getvalue(),
-                                       height=img.shape[0],
-                                       width=img.shape[1])
-            img_summaries.append(tf.Summary.Value(tag='%s/%d' % (tag, i), image=img_sum))
+            img_sum = tf.Summary.Image(
+                encoded_image_string=s.getvalue(),
+                height=img.shape[0],
+                width=img.shape[1],
+            )
+            img_summaries.append(
+                tf.Summary.Value(tag="%s/%d" % (tag, i), image=img_sum)
+            )
 
         summary = tf.Summary(value=img_summaries)
         self.writer.add_summary(summary, step)
